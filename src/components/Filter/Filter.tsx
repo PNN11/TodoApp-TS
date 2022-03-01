@@ -17,7 +17,7 @@ const Filter: React.FC<FilterProps> = ({
   filterValues,
   onChangeFilterValues,
 }) => {
-  const { status, title, priority, date } = filterValues;
+  const { status, title, priority, dateStart } = filterValues;
 
   const { t } = useTranslation();
 
@@ -31,7 +31,7 @@ const Filter: React.FC<FilterProps> = ({
     onChangeFilterValues("priority", e.target.value);
   };
   const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeFilterValues("date", e.target.value);
+    onChangeFilterValues("dateStart", e.target.value);
   };
 
   return (
@@ -95,7 +95,7 @@ const Filter: React.FC<FilterProps> = ({
           type="date"
           variant="standard"
           name="date"
-          value={date}
+          value={dateStart}
           onChange={handleChangeDate}
         />
       </Stack>

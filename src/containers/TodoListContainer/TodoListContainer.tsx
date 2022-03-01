@@ -1,27 +1,26 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { Container, Dialog } from "@mui/material";
+import React, { useReducer, useState } from "react";
+import { CircularProgress, Container, Dialog, Box } from "@mui/material";
 
 import Form from "components/Form";
-import TodoList from "components/TodoList";
+import TodoList from "containers/TodoList";
 import Filter from "components/Filter";
 import TodoHeader from "components/TodoHeader";
 import { FilterValues } from "components/Filter/Filter.types";
-import { Todo } from "components/TodoItem/TodoItem.types";
-import {
-  getItemFromLocalStorage,
-  setItemToLocalStorage,
-} from "helpers/localStorage";
+import { Todo, todoApi } from "store/todos";
 
 const TodoListContainer: React.FC = () => {
-  const [todoList, setTodoList] = useState<Todo[]>(
-    getItemFromLocalStorage("todoList") || []
-  );
-  const [editTodo, setEditTodo] = useState<Todo | null>(null);
+  const {
+    data: todoList = [],
+    isLoading,
+    isError,
+  } = todoApi.useGetAllTodosQuery("");
+  const [createTodo] = todoApi.useCreateTodoMutation();
+
   const [filterValues, setFilterValues] = useState<FilterValues>({
     status: "All",
     priority: "All",
     title: "",
-    date: "",
+    dateStart: "",
   });
   const [open, toggle] = useReducer((prev) => !prev, false);
 
@@ -29,48 +28,18 @@ const TodoListContainer: React.FC = () => {
     setFilterValues({ ...filterValues, [name]: value });
   };
 
-  const handleSubmit = (todo: Todo) => {
-    if (editTodo) {
-      setTodoList(
-        todoList.map((item) =>
-          item.id === todo.id ? { ...item, ...todo } : item
-        )
-      );
-    } else {
-      setTodoList([...todoList, todo]);
-    }
-    setEditTodo(null);
+  const handleCreate = (todo: Todo) => {
+    createTodo(todo);
     toggle();
-  };
-
-  const handleEdit = (todo: Todo) => {
-    setEditTodo(todo);
-    toggle();
-  };
-
-  const handleDelete = (todo: Todo) => {
-    setTodoList(todoList.filter((item) => item.id !== todo.id));
   };
 
   const handleDeleteAllCompleted = () => {
-    setTodoList(todoList.filter((item) => !item.completed));
+    // setTodoList(todoList.filter((item) => !item.completed));
   };
 
   const handleDeleteAll = () => {
-    setTodoList([]);
+    // setTodoList([]);
   };
-
-  const handleDone = (todo: Todo) => {
-    setTodoList(
-      todoList.map((item) =>
-        item.id === todo.id ? { ...item, completed: true } : item
-      )
-    );
-  };
-
-  useEffect(() => {
-    setItemToLocalStorage("todoList", todoList);
-  }, [todoList]);
 
   const filterList = () => {
     let filteredList = todoList;
@@ -89,9 +58,9 @@ const TodoListContainer: React.FC = () => {
     if (filterValues.priority === "Low") {
       filteredList = filteredList.filter((item) => item.priority === "Low");
     }
-    if (filterValues.date) {
+    if (filterValues.dateStart) {
       filteredList = filteredList.filter((item) =>
-        item.dateStart.includes(filterValues.date)
+        item.dateStart.includes(filterValues.dateStart)
       );
     }
     if (filterValues.title) {
@@ -116,14 +85,15 @@ const TodoListContainer: React.FC = () => {
         filterValues={filterValues}
         onChangeFilterValues={handleChangeFilterValue}
       />
-      <TodoList
-        list={list}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onDone={handleDone}
-      />
+      {isLoading && (
+        <Box textAlign="center">
+          <CircularProgress />
+        </Box>
+      )}
+      {isError && "Some error..."}
+      {!isLoading && !isError && todoList && <TodoList list={list} />}
       <Dialog open={open} onClose={toggle} fullWidth>
-        <Form onSubmit={handleSubmit} list={todoList} initial={editTodo} />
+        <Form onSubmit={handleCreate} list={todoList} />
       </Dialog>
     </Container>
   );

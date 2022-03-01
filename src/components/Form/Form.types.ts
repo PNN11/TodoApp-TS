@@ -1,4 +1,4 @@
-import { Todo } from "components/TodoItem/TodoItem.types";
+import { Todo } from "store/todos";
 
 export interface FormProps {
   onSubmit: (todo: Todo) => void;

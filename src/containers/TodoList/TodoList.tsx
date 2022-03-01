@@ -3,25 +3,12 @@ import { List, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import { TodoListProps } from "./TodoList.types";
-import TodoItem from "components/TodoItem";
+import TodoItem from "containers/TodoItem";
 
-const TodoList: React.FC<TodoListProps> = ({
-  list,
-  onEdit,
-  onDelete,
-  onDone,
-}) => {
+const TodoList: React.FC<TodoListProps> = ({ list }) => {
   const { t } = useTranslation();
 
-  const todoItems = list.map((todo) => (
-    <TodoItem
-      key={todo.id}
-      todo={todo}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onDone={onDone}
-    />
-  ));
+  const todoItems = list.map((todo) => <TodoItem key={todo.id} todo={todo} />);
 
   return (
     <List>

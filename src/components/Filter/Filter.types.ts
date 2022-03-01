@@ -2,7 +2,7 @@ export interface FilterValues {
   status: string;
   priority: string;
   title: string;
-  date: string;
+  dateStart: string;
 }
 
 export interface FilterProps {
