@@ -1,5 +1,5 @@
 import React, { useReducer, useState } from "react";
-import { CircularProgress, Container, Dialog, Box } from "@mui/material";
+import { CircularProgress, Container, Dialog, Box, Paper } from "@mui/material";
 
 import Form from "components/Form";
 import TodoList from "containers/TodoList";
@@ -15,6 +15,7 @@ const TodoListContainer: React.FC = () => {
     isError,
   } = todoApi.useGetAllTodosQuery("");
   const [createTodo] = todoApi.useCreateTodoMutation();
+  const [deleteTodo] = todoApi.useDeleteTodoMutation();
 
   const [filterValues, setFilterValues] = useState<FilterValues>({
     status: "All",
@@ -34,11 +35,11 @@ const TodoListContainer: React.FC = () => {
   };
 
   const handleDeleteAllCompleted = () => {
-    // setTodoList(todoList.filter((item) => !item.completed));
+    todoList.forEach((todo) => todo.completed && deleteTodo(todo));
   };
 
   const handleDeleteAll = () => {
-    // setTodoList([]);
+    todoList.forEach((todo) => deleteTodo(todo));
   };
 
   const filterList = () => {
@@ -74,28 +75,30 @@ const TodoListContainer: React.FC = () => {
   const list = filterList();
 
   return (
-    <Container>
-      <TodoHeader
-        open={toggle}
-        count={list.length}
-        onDeleteCompleted={handleDeleteAllCompleted}
-        onDeleteAll={handleDeleteAll}
-      />
-      <Filter
-        filterValues={filterValues}
-        onChangeFilterValues={handleChangeFilterValue}
-      />
-      {isLoading && (
-        <Box textAlign="center">
-          <CircularProgress />
-        </Box>
-      )}
-      {isError && "Some error..."}
-      {!isLoading && !isError && todoList && <TodoList list={list} />}
-      <Dialog open={open} onClose={toggle} fullWidth>
-        <Form onSubmit={handleCreate} list={todoList} />
-      </Dialog>
-    </Container>
+    <Paper elevation={0}>
+      <Container>
+        <TodoHeader
+          open={toggle}
+          count={list.length}
+          onDeleteCompleted={handleDeleteAllCompleted}
+          onDeleteAll={handleDeleteAll}
+        />
+        <Filter
+          filterValues={filterValues}
+          onChangeFilterValues={handleChangeFilterValue}
+        />
+        {isLoading && (
+          <Box textAlign="center">
+            <CircularProgress />
+          </Box>
+        )}
+        {isError && "Some error..."}
+        {!isLoading && !isError && todoList && <TodoList list={list} />}
+        <Dialog open={open} onClose={toggle} fullWidth>
+          <Form onSubmit={handleCreate} list={todoList} />
+        </Dialog>
+      </Container>
+    </Paper>
   );
 };
 
